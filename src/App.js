@@ -228,7 +228,7 @@ class App extends Component {
               </Label>
               <Label>
               <Label.Detail>+</Label.Detail>
-                {data.strong}
+                {data.medium}
               </Label>
               =
               <Label color="purple">
@@ -243,7 +243,7 @@ class App extends Component {
               </Label>
               <Label>
                 <Label.Detail>+</Label.Detail>
-                {data.strong}
+                {data.medium}
               </Label>
               =
               <Label color="purple">
