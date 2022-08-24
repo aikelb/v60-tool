@@ -1,9 +1,10 @@
-import { React, Component } from "react";
+import { React, Component, useEffect } from "react";
 import {
   Container,
   Header,
   Grid,
   Tab,
+  Icon,
   Divider,
   Form,
   Segment,
@@ -21,10 +22,14 @@ class App extends Component {
     }
   }
 
+  componentDidMount() {
+    document.title = "V60 Tool"
+  }
+
   panes = [
     {
       menuItem: 'Tetsu 4-6',
-      render: () => this.tetsu(),
+      render: () => this.tetsuyaMethod(),
     },
     {
       menuItem: 'Hoffmann',
@@ -36,249 +41,135 @@ class App extends Component {
     },
   ]
 
-  tetsu() {
-    let data = {
-      target1: Math.round(0.4 * this.state.water),
+  tetsuStack = (title, color, steps) => <Grid.Column>
+    <Segment.Group>
+      <Segment color={color} size="big">
+        {title}
+      </Segment>
+
+      {steps.map((step) =>
+        <Segment>
+          <Label circular>
+            {step.number}
+            <Label.Detail>{step.time}</Label.Detail>
+          </Label>
+
+          {'addAmount' in step && (
+            <Label>
+              <Label.Detail>+</Label.Detail>
+              {step.addAmount}
+            </Label>
+          )}
+          {'addAmount' in step && "="}
+          <Label color={color}>
+            {'addAmount' in step && (step.lastAmount + step.addAmount)}
+            {'amount' in step && (step.amount)}
+            <Label.Detail>ml</Label.Detail>
+          </Label>
+        </Segment>
+      )}
+    </Segment.Group>
+  </Grid.Column>
+
+  tetsuyaMethod() {
+    const firstPart = 0.4 * this.state.water;
+    const secondPart = 0.6 * this.state.water;
+    let tetsuyaData = {
       standard: [
-        3 * this.state.coffee,
-        0.4 * this.state.water - 3 * this.state.coffee
+        {
+          number: 1,
+          time: '0:00',
+          amount: 3 * this.state.coffee
+        },
+        {
+          number: 2,
+          time: '0:45',
+          addAmount: Math.round(firstPart - 3 * this.state.coffee),
+          lastAmount: Math.round(3 * this.state.coffee)
+        }
       ],
       sweet: [
-        2 * this.state.coffee,
-        0.4 * this.state.water - 2 * this.state.coffee
+        {
+          number: 1,
+          time: '0:00',
+          amount: Math.round(2 * this.state.coffee)
+        },
+        {
+          number: 2,
+          time: '0:45',
+          addAmount: Math.round(firstPart - 2 * this.state.coffee),
+          lastAmount: Math.round(2 * this.state.coffee)
+        }
       ],
       bright: [
-        4 * this.state.coffee,
-        0.4 * this.state.water - 4 * this.state.coffee
+        {
+          number: 1,
+          time: '0:00',
+          amount: Math.round(4 * this.state.coffee)
+        },
+        {
+          number: 2,
+          time: '0:45',
+          addAmount: Math.round(firstPart - 4 * this.state.coffee),
+          lastAmount: Math.round(4 * this.state.coffee)
+        }
       ],
-      strong: Math.round(0.6 * this.state.water / 3),
-      medium: Math.round(0.6 * this.state.water / 2),
-      light: Math.round(0.6 * this.state.water)
+      strong: [
+        {
+          number: 3,
+          time: '1:30',
+          addAmount: Math.round(secondPart / 3),
+          lastAmount: Math.round(firstPart)
+        },
+        {
+          number: 4,
+          time: '2:15',
+          addAmount: Math.round(secondPart / 3),
+          lastAmount: Math.round(firstPart + secondPart / 3)
+        },
+        {
+          number: 5,
+          time: '2:45',
+          addAmount: Math.round(secondPart / 3),
+          lastAmount: Math.round(firstPart + secondPart / 3 * 2)
+        }
+      ],
+      medium: [
+        {
+          number: 3,
+          time: '1:30',
+          addAmount: Math.round(secondPart / 2),
+          lastAmount: Math.round(firstPart)
+        },
+        {
+          number: 4,
+          time: '2:15',
+          addAmount: Math.round(secondPart / 2),
+          lastAmount: Math.round(firstPart + secondPart / 2)
+        }
+      ],
+      light: [
+        {
+          number: 3,
+          time: '1:30',
+          addAmount: Math.round(secondPart),
+          lastAmount: Math.round(firstPart)
+        }
+      ]
     }
 
-    data.standard = data.standard.map(e => Math.round(e));
-    data.sweet = data.sweet.map(e => Math.round(e));
-    data.bright = data.bright.map(e => Math.round(e));
-
-    return (
+    return (<span>
       <Grid columns={3} stackable>
-
-        <Grid.Column>
-          <Segment.Group>
-            <Segment color="teal" size="big">
-              Standard
-            </Segment>
-            <Segment>
-              <Label circular>
-                1
-                <Label.Detail>0:00</Label.Detail>
-              </Label>
-              <Label color="teal">
-                {data.standard[0]}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-            <Segment>
-              <Label circular>
-                2
-                <Label.Detail>0:45</Label.Detail>
-              </Label>
-              <Label>
-                <Label.Detail>+</Label.Detail>
-                {data.standard[1]}
-              </Label>
-              =
-              <Label color="teal">
-                {data.standard[0] + data.standard[1]}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-          </Segment.Group>
-        </Grid.Column>
-
-        <Grid.Column>
-          <Segment.Group>
-            <Segment color="orange" size="big">
-              Sweet
-            </Segment>
-            <Segment>
-              <Label circular>
-                1
-                <Label.Detail>0:00</Label.Detail>
-              </Label>
-              <Label color="orange">
-                {data.sweet[0]}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-            <Segment>
-              <Label circular>
-                2
-                <Label.Detail>0:45</Label.Detail>
-              </Label>
-              <Label>
-                <Label.Detail>+</Label.Detail>
-                {data.sweet[1]}
-              </Label>
-              =
-              <Label color="orange">
-                {data.sweet[0] + data.sweet[1]}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-          </Segment.Group>
-        </Grid.Column>
-
-        <Grid.Column>
-          <Segment.Group>
-            <Segment color="yellow" size="big">
-              Bright
-            </Segment>
-            <Segment>
-              <Label circular>
-                1
-                <Label.Detail>0:00</Label.Detail>
-              </Label>
-              <Label color="yellow">
-                {data.bright[0]}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-            <Segment>
-              <Label circular>
-                2
-                <Label.Detail>0:45</Label.Detail>
-              </Label>
-              <Label>
-                <Label.Detail>+</Label.Detail>
-                {data.bright[1]}
-              </Label>
-              =
-              <Label color="yellow">
-                {data.bright[0] + data.bright[1]}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-          </Segment.Group>
-        </Grid.Column>
-
-        <Grid.Row columns={3}>
-        <Grid.Column>
-          <Segment.Group>
-            <Segment color="red" size="big">
-              Strong
-            </Segment>
-            <Segment>
-              <Label circular>
-                3
-                <Label.Detail>1:30</Label.Detail>
-              </Label>
-              <Label>
-              <Label.Detail>+</Label.Detail>
-                {data.strong}
-              </Label>
-              =
-              <Label color="red">
-                {data.target1 + data.strong}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-            <Segment>
-              <Label circular>
-                4
-                <Label.Detail>2:15</Label.Detail>
-              </Label>
-              <Label>
-                <Label.Detail>+</Label.Detail>
-                {data.strong}
-              </Label>
-              =
-              <Label color="red">
-              {data.target1 + data.strong * 2}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-            <Segment>
-              <Label circular>
-                5
-                <Label.Detail>2:45</Label.Detail>
-              </Label>
-              <Label>
-                <Label.Detail>+</Label.Detail>
-                {data.strong}
-              </Label>
-              =
-              <Label color="red">
-                {data.target1 + data.strong*3}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-          </Segment.Group>
-        </Grid.Column>
-
-        <Grid.Column>
-          <Segment.Group>
-            <Segment color="purple" size="big">
-              Medium
-            </Segment>
-            <Segment>
-              <Label circular>
-                3
-                <Label.Detail>1:30</Label.Detail>
-              </Label>
-              <Label>
-              <Label.Detail>+</Label.Detail>
-                {data.medium}
-              </Label>
-              =
-              <Label color="purple">
-                {data.target1 + data.medium}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-            <Segment>
-              <Label circular>
-                4
-                <Label.Detail>2:15</Label.Detail>
-              </Label>
-              <Label>
-                <Label.Detail>+</Label.Detail>
-                {data.medium}
-              </Label>
-              =
-              <Label color="purple">
-              {data.target1 + data.medium * 2}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-          </Segment.Group>
-        </Grid.Column>
-
-          <Grid.Column>
-          <Segment.Group>
-            <Segment color="olive" size="big">
-              Light
-            </Segment>
-            <Segment>
-              <Label circular>
-                3
-                <Label.Detail>1:30</Label.Detail>
-              </Label>
-              <Label>
-              <Label.Detail>+</Label.Detail>
-                {data.light}
-              </Label>
-              =
-              <Label color="olive">
-                {data.target1 + data.light}
-                <Label.Detail>ml</Label.Detail>
-              </Label>
-            </Segment>
-          </Segment.Group>
-        </Grid.Column>
-
-        </Grid.Row>
+        {this.tetsuStack("Standard", "teal", tetsuyaData.standard)}
+        {this.tetsuStack("Sweet", "orange", tetsuyaData.sweet)}
+        {this.tetsuStack("Bright", "yellow", tetsuyaData.bright)}
       </Grid>
+      <Divider horizontal> <Icon name="expand arrows alternate" /></Divider>
+      <Grid columns={3} stackable>
+        {this.tetsuStack("Strong", "red", tetsuyaData.strong)}
+        {this.tetsuStack("Medium", "purple", tetsuyaData.medium)}
+        {this.tetsuStack("Light", "olive", tetsuyaData.light)}
+      </Grid></span>
     )
   }
 
@@ -304,22 +195,29 @@ class App extends Component {
   }
 
   render() {
+
     return (
       <Container style={{ marginTop: '3em' }}>
         <Header as='h1'>V60 Tool</Header>
 
         <Form>
-        <Form.Group widths='equal'>
-          <Form.Input fluid label='Coffee' placeholder='Enter coffee amount' 
-            value={this.state.coffee}
-            onChange={(event) => this.setCoffee(event.target.value)}/>
-          <Form.Input fluid label='Ratio' placeholder='Custom ratio' 
-            value={this.state.ratio}
-            onChange={(event) => this.setRatio(event.target.value)}/>
-          <Form.Input fluid label='Water' placeholder='Enter water amount' 
-            value={this.state.water}
-            onChange={(event) => this.setWater(event.target.value)}/>
-        </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.Input fluid label='Coffee' placeholder='Coffee amount' labelPosition='right'
+              value={this.state.coffee}
+              onChange={(event) => this.setCoffee(event.target.value)}>
+                <input />
+                <Label>gr</Label>
+            </Form.Input>
+            <Form.Input fluid label='Ratio' placeholder='Custom ratio'
+              value={this.state.ratio}
+              onChange={(event) => this.setRatio(event.target.value)} />
+            <Form.Input fluid label='Water' placeholder='Water amount' labelPosition='right'
+              value={this.state.water}
+              onChange={(event) => this.setWater(event.target.value)}>
+              <input />
+              <Label>ml</Label>
+            </Form.Input>
+          </Form.Group>
         </Form>
 
         <Divider></Divider>
