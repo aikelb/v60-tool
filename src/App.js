@@ -8,7 +8,8 @@ import {
   Divider,
   Form,
   Segment,
-  Label
+  Label,
+  Message
 } from 'semantic-ui-react'
 
 class App extends Component {
@@ -28,20 +29,20 @@ class App extends Component {
 
   panes = [
     {
-      menuItem: 'Tetsu 4-6',
-      render: () => this.tetsuyaMethod(),
+      menuItem: 'Tetsu Kasuya 4-6',
+      render: () => this.tetsuMethod(),
     },
     {
-      menuItem: 'Hoffmann',
-      render: () => <Tab.Pane attached={false}>Tab 2 Content</Tab.Pane>,
+      menuItem: 'James Hoffmann',
+      render: () => this.hoffmannMethod(),
     },
     {
-      menuItem: 'Onyx',
-      render: () => <Tab.Pane attached={false}>Tab 3 Content</Tab.Pane>,
+      menuItem: 'Other',
+      render: () => this.otherMethods(),
     },
   ]
 
-  tetsuStack = (title, color, steps) => <Grid.Column>
+  pourStack = (title, color, steps) => <Grid.Column>
     <Segment.Group>
       <Segment color={color} size="big">
         {title}
@@ -56,25 +57,27 @@ class App extends Component {
 
           {'addAmount' in step && (
             <Label>
-              <Label.Detail>+</Label.Detail>
+              +
               {step.addAmount}
             </Label>
           )}
-          {'addAmount' in step && "="}
-          <Label color={color}>
+          {'addAmount' in step && <Label color='grey'>=</Label>}
+          {('addAmount' in step || 'amount' in step) && <Label color={color}>
             {'addAmount' in step && (step.lastAmount + step.addAmount)}
             {'amount' in step && (step.amount)}
             <Label.Detail>ml</Label.Detail>
-          </Label>
+          </Label>}
+
+          {'message' in step && (<Message>{step.message}</Message>)}
         </Segment>
       )}
     </Segment.Group>
   </Grid.Column>
 
-  tetsuyaMethod() {
+  tetsuMethod() {
     const firstPart = 0.4 * this.state.water;
     const secondPart = 0.6 * this.state.water;
-    let tetsuyaData = {
+    const tetsuData = {
       standard: [
         {
           number: 1,
@@ -158,19 +161,121 @@ class App extends Component {
       ]
     }
 
-    return (<span>
-      <Grid columns={3} stackable>
-        {this.tetsuStack("Standard", "teal", tetsuyaData.standard)}
-        {this.tetsuStack("Sweet", "orange", tetsuyaData.sweet)}
-        {this.tetsuStack("Bright", "yellow", tetsuyaData.bright)}
-      </Grid>
-      <Divider horizontal> <Icon name="expand arrows alternate" /></Divider>
-      <Grid columns={3} stackable>
-        {this.tetsuStack("Strong", "red", tetsuyaData.strong)}
-        {this.tetsuStack("Medium", "purple", tetsuyaData.medium)}
-        {this.tetsuStack("Light", "olive", tetsuyaData.light)}
-      </Grid></span>
+    return (
+      <span>
+        <Divider horizontal> Phase One </Divider>
+        <Grid columns={3} stackable>
+          {this.pourStack("Standard", "teal", tetsuData.standard)}
+          {this.pourStack("Sweet", "orange", tetsuData.sweet)}
+          {this.pourStack("Bright", "yellow", tetsuData.bright)}
+        </Grid>
+        <Divider horizontal> Phase Two <Icon name="expand arrows alternate" /></Divider>
+        <Grid columns={3} stackable>
+          {this.pourStack("Strong", "red", tetsuData.strong)}
+          {this.pourStack("Medium", "purple", tetsuData.medium)}
+          {this.pourStack("Light", "olive", tetsuData.light)}
+        </Grid>
+        <Message>Based on <a target="_blank" href="https://firefortysix.com/2021/08/21/putting-the-flexibility-of-tetsu-4-6-to-the-test/">Firefortsix</a></Message>
+      </span>
     )
+  }
+
+  hoffmannMethod() {
+    const firstPart = 0.6 * this.state.water;
+    const secondPart = 0.4 * this.state.water;
+    const hoffmannData = {
+      ultimate: [
+        {
+          number: 1,
+          time: '0:00',
+          amount: 2 * this.state.coffee
+        },
+        {
+          number: 2,
+          time: '0:45',
+          addAmount: Math.round(firstPart - 2 * this.state.coffee),
+          lastAmount: Math.round(2 * this.state.coffee)
+        },
+        {
+          number: 3,
+          time: '1:15 -> 1:45',
+          addAmount: Math.round(secondPart),
+          lastAmount: Math.round(firstPart)
+        },
+        {
+          number: 4,
+          time: '1:45',
+          message: "Stir one round, and another round in reverse direction"
+        },
+        {
+          number: 5,
+          time: '~',
+          message: "During middle of drawdown, swirl V60 cone to achieve flat bed"
+        }
+      ],
+      switch: [
+        {
+          number: 1,
+          time: '0:00',
+          amount: this.state.water,
+          message: '2 minute steep'
+        },
+        {
+          number: 2,
+          time: '2:00',
+          message: 'Stir and wait 15 seconds'
+        },
+        {
+          number: 3,
+          time: '2:15',
+          message: 'Release for drawdown'
+        }
+      ]
+    }
+
+    return (
+      <span>
+        <Grid columns={3} stackable centered>
+          {this.pourStack("Ultimate", "teal", hoffmannData.ultimate)}
+          {this.pourStack("Switch", "teal", hoffmannData.switch)}
+        </Grid>
+        <Message>Based on <a target="_blank" href="https://firefortysix.com/2022/06/04/test-driving-four-different-v60-coffee-recipes-tetsu-cafec-onyx-hoffmann/">Firefortsix</a> and <a target="_blank" href="https://www.youtube.com/watch?v=QjIvN8mlK9Y">James Hoffmann</a></Message>
+      </span>)
+  }
+
+  otherMethods() {
+    const firstPart = 0.6 * this.state.water;
+    const secondPart = 0.4 * this.state.water;
+    const otherData = {
+      ice: [
+        {
+          number: 1,
+          time: '0:00',
+          amount: Math.round(0.6 * this.state.water),
+          message: 'Add ' + Math.round(0.6 * this.state.water) + ' ml as ice'
+        },
+        {
+          number: 2,
+          time: '0:00',
+          amount: Math.round(3 * this.state.coffee)
+        },
+        {
+          number: 3,
+          time: '2:00',
+          addAmount: Math.round(secondPart - 3 * this.state.coffee),
+          lastAmount: Math.round(3 * this.state.coffee),
+          message: 'Add rest of the water in 50g increments'
+        }
+      ]
+    }
+
+    return (
+      <span>
+        <Grid columns={3} stackable centered>
+          {this.pourStack("Ice", "teal", otherData.ice)}
+        </Grid>
+        <Message>Based on <a target="_blank" href="https://www.youtube.com/watch?v=Y3jxJv5UiPg">Hueguh</a></Message>
+      </span>)
   }
 
   setCoffee(value) {
@@ -205,8 +310,8 @@ class App extends Component {
             <Form.Input fluid label='Coffee' placeholder='Coffee amount' labelPosition='right'
               value={this.state.coffee}
               onChange={(event) => this.setCoffee(event.target.value)}>
-                <input />
-                <Label>gr</Label>
+              <input />
+              <Label>gr</Label>
             </Form.Input>
             <Form.Input fluid label='Ratio' placeholder='Custom ratio'
               value={this.state.ratio}
